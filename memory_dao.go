@@ -44,7 +44,7 @@ func (d *Memory) SetPromotions(promotions []*Promotion) error {
 // SetUsers saves users in a map
 func (d *Memory) SetUsers(users []*User) error {
 	for _, user := range users {
-		d.Users[user.ID] = user
+		d.SetUser(user)
 	}
 	if len(d.Users) == 0 {
 		return errors.New("user array is empty")
@@ -80,6 +80,13 @@ func (d *Memory) GetPromotions() (Promotions, error) {
 
 // SetUser saves data in memory
 func (d *Memory) SetUser(user *User) error {
+	cartID := len(d.Carts) + 1
+	c := &Cart{
+		ID:       cartID,
+		UserID:   user.ID,
+		Products: map[int][]*CartProduct{},
+	}
+	d.SetCart(c)
 	d.Users[user.ID] = user
 	return nil
 }

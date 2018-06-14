@@ -51,59 +51,72 @@ func (s *Service) PrintDAO() {
 
 	log.Infof("Products: %+v\nPromotions: %+v\nUser:%+v\n", products, promos, user)
 }
-func (s *Service) calculatePromotions(cart *Cart) (map[int][]*CartProduct, error) {
-	// var totalPrice float64
-	// var discount int
-	// var unitPrice map[int]int
+func (s *Service) calculatePromotions(cart *Cart) ([]*CartProduct, error) {
+
 	promotions, err := s.dao.GetPromotions()
 	if err != nil {
 		return nil, err
 	}
-	processedItems := map[int][]*CartProduct{}
-	for productType, cartProducts := range cart.Products {
-		itemsOfType := len(cartProducts)
-		if promo, ok := promotions[productType]; ok { // is there a promotion associated to this type of product
+	checkOut := []*CartProduct{}
 
-			// calculate special price
-			for k, cartProduct := range cartProducts {
-				processedProduct := cartProduct
-				if promo.SpecialPrice != 0 && itemsOfType >= promo.QuantityForSpecialPrice { // promo is a special price after
-					// set correct price for the next product
-					if k > promo.QuantityForSpecialPrice {
-						processedProduct.DiscountedPrice = promo.SpecialPrice
-					}
-				}
+	checkPromos(promotions, cart.Products)
 
-				processedItems[productType] = append(processedItems[productType], processedProduct)
+	for _, productsArray := range cart.Products {
+		for _, product := range productsArray {
+			if product.Discount {
+				product.DiscountedPrice = (product.UnitPrice * product.DiscountPercentage) / 100
+				// product.DiscountPercentage = promo.Discount
+				product.DiscountAmount = product.UnitPrice - product.DiscountedPrice
 			}
-
-			// calculate discounts
-
-			for _, v := range promo.ProductsDiscounted {
-				for _, productToDiscount := range cart.Products[v] {
-					discountedProduct := productToDiscount
-					if promo.Discount != 0 && itemsOfType >= promo.QuantityForDiscount {
-						discountedProduct.DiscountedPrice = (productToDiscount.UnitPrice * promo.Discount) / 100
-						discountedProduct.DiscountPercentage = promo.Discount
-						discountedProduct.DiscountAmount = productToDiscount.UnitPrice - discountedProduct.DiscountedPrice
-					}
-					processedItems[productType] = append(processedItems[productType], discountedProduct)
-				}
+			if product.SpecialPrice {
+				product.DiscountAmount = product.UnitPrice - product.DiscountedPrice
 			}
+			checkOut = append(checkOut, product)
 		}
 
 	}
-	return processedItems, nil
+
+	return checkOut, nil
 }
 
-func calculateTotalPrice(allProducts map[int][]*CartProduct) (float64, float64) {
+func calculateTotalPrice(allProducts []*CartProduct) (float64, float64) {
 	var total float64
-	var totalWithDiscount float64
-	for _, products := range allProducts {
-		for _, p := range products {
-			total += p.UnitPrice
-			totalWithDiscount += p.DiscountedPrice
-		}
+	var totalDiscount float64
+
+	for _, p := range allProducts {
+		total += p.UnitPrice
+		totalDiscount += p.DiscountAmount
 	}
-	return total, totalWithDiscount
+
+	return total - totalDiscount, totalDiscount
+}
+
+func checkPromos(promotions Promotions, productsMap map[int][]*CartProduct) {
+	// productsForDiscount := []int{}
+	for productType, products := range productsMap {
+		itemsOfType := len(products)
+		promo, ok := promotions[productType]
+		if ok {
+			if promo.SpecialPrice != 0 && itemsOfType >= promo.QuantityForSpecialPrice { // promo
+				for k, p := range products {
+					if k+1 > promo.QuantityForSpecialPrice {
+						p.SpecialPrice = true
+						p.DiscountedPrice = promo.SpecialPrice
+					}
+				}
+			}
+			if itemsOfType >= promo.QuantityForDiscount {
+				for _, v := range promo.ProductsDiscounted {
+					for _, product := range productsMap[v] {
+
+						product.Discount = true
+						product.DiscountPercentage = promo.Discount
+
+					}
+				}
+			}
+		}
+
+	}
+
 }

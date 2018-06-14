@@ -90,6 +90,7 @@ var config = struct {
 			ID:       1,
 			Username: "test",
 			Password: "test",
+			Token:    "rfBd56ti2S",
 		},
 	},
 }

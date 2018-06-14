@@ -139,10 +139,6 @@ func (s *Service) HandleCartAddItem(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, errInternalServerError.msg("dao.GetProducts: "+err.Error()))
 		return
 	}
-	// for k, v := range products {
-	// 	log.Infof("products? %d,%+v\n", k, v)
-	// }
-	log.Infof("producttttttt %d - %+v", req.ProductID, products[req.ProductID])
 	p := products[req.ProductID]
 	if p == nil {
 		s.writeError(w, errInternalServerError.msg("product type doesn't exist"))
@@ -158,6 +154,11 @@ func (s *Service) HandleCartAddItem(w http.ResponseWriter, r *http.Request) {
 			ProductName: p.Name,
 			UnitPrice:   p.Price,
 		})
+	}
+	if len(cart.Products[req.ProductID]) > p.Stock {
+		cart.Products[req.ProductID] = append(cart.Products[req.ProductID][:0], cart.Products[req.ProductID][1:]...)
+		s.writeError(w, errBadRequestNotEnoughStock.msg("not enough stock"))
+		return
 	}
 
 	if err := s.dao.SetCart(cart); err != nil {
@@ -191,11 +192,23 @@ func (s *Service) HandleCartRemoveItem(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, errInternalServerError.msg("dao.GetCartByUserID: "+err.Error()))
 		return
 	}
+	for i := 0; i < req.Quantity; i++ {
+		if len(cart.Products[req.ProductID]) < 2 {
+			cart.Products[req.ProductID] = []*CartProduct{}
+		} else {
+			cart.Products[req.ProductID] = append(cart.Products[req.ProductID][:0], cart.Products[req.ProductID][1:]...)
+		}
+	}
+	// reset all promotions
+	for _, products := range cart.Products {
+		for _, product := range products {
+			product.Discount = false
+			product.SpecialPrice = false
+			product.DiscountAmount = 0
+			product.DiscountPercentage = 0
+			product.DiscountedPrice = 0
 
-	if len(cart.Products[req.ProductID]) < 2 {
-		cart.Products[req.ProductID] = []*CartProduct{}
-	} else {
-		cart.Products[req.ProductID] = append(cart.Products[req.ProductID][:0], cart.Products[req.ProductID][1:]...)
+		}
 	}
 	if err := s.dao.SetCart(cart); err != nil {
 		s.writeError(w, errInternalServerError.msg("dao.SetCart: "+err.Error()))
@@ -220,6 +233,7 @@ func (s *Service) HandleCartClear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cart.Products = map[int][]*CartProduct{}
+	cart.Checkout = []*CartProduct{}
 
 	if err := s.dao.SetCart(cart); err != nil {
 		s.writeError(w, errInternalServerError.msg("dao.SetCart: "+err.Error()))
@@ -250,9 +264,9 @@ func (s *Service) HandleCartCheckout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	total, discountedTotal := calculateTotalPrice(updatedProducts)
-	cart.Products = updatedProducts
+	cart.Checkout = updatedProducts
 	cart.TotalPrice = total
-	cart.TotalWithDiscount = discountedTotal
+	cart.TotalDiscount = discountedTotal
 
 	if err := s.dao.SetCart(cart); err != nil {
 		s.writeError(w, errInternalServerError.msg("dao.SetCart: "+err.Error()))
@@ -260,9 +274,8 @@ func (s *Service) HandleCartCheckout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := struct {
-		Cart *Cart
-		Err  error
-	}{cart, err}
+		Cart *Cart `json:"cart"`
+	}{cart}
 	s.writeJSON(w, res)
 }
 

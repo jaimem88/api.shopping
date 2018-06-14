@@ -29,11 +29,12 @@ type Promotion struct {
 
 // Cart describes the shopping cart of a user
 type Cart struct {
-	ID                int                    `json:"id"`
-	UserID            int                    `json:"user_id"`
-	Products          map[int][]*CartProduct `json:"products"`
-	TotalPrice        float64                `json:"total_price,omitempty"`
-	TotalWithDiscount float64                `json:"total_with_discount,omitempty"`
+	ID            int                    `json:"id"`
+	UserID        int                    `json:"user_id"`
+	Products      map[int][]*CartProduct `json:"products"`
+	Checkout      []*CartProduct         `json:"checkout,omitempty"`
+	TotalPrice    float64                `json:"total_price,omitempty"`
+	TotalDiscount float64                `json:"total_discount,omitempty"`
 }
 
 // User model
@@ -50,6 +51,8 @@ type CartProduct struct {
 	ProductType        int     `json:"product_type,omitempty"`
 	ProductName        string  `json:"product_name,omitempty"`
 	UnitPrice          float64 `json:"unit_price,omitempty"`
+	Discount           bool    `json:"discount,omitempty"`
+	SpecialPrice       bool    `json:"special_price,omitempty"`
 	DiscountPercentage float64 `json:"discount_percentage,omitempty"`
 	DiscountAmount     float64 `json:"discount_amount,omitempty"`
 	DiscountedPrice    float64 `json:"discounted_price,omitempty"`
