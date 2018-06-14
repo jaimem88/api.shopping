@@ -21,6 +21,15 @@ Optionally, a JSON config file can be passed via the `-config` flag
 go build ./cmd/api.shopping/ && ./api.shopping -config config.json
 ```
 
+### Run in a Docker container
+
+```sh
+make run PORT=8080
+```
+
 ## Postman collection
+
+Username: `test`
+Password: `test`
 
 [Postman](_postman) collection available for testing
