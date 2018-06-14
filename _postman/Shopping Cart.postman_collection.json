@@ -1,0 +1,397 @@
+{
+	"info": {
+		"_postman_id": "406f2eac-aea4-447e-ba87-6b06b44e3798",
+		"name": "Shopping Cart",
+		"description": "Shopping Cart collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "531294f2-8af6-4ba8-8f0b-7dca0d472760",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"token\", jsonData.token);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						},
+						{
+							"key": "saveHelperData",
+							"type": "any"
+						},
+						{
+							"key": "showPassword",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/login",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"login"
+					]
+				},
+				"description": "Logs into the portal\ntest:test"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Shopping Cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Item to cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"product_id\":4,\n\t\"quantity\":1\n}"
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart/add",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart",
+						"add"
+					]
+				},
+				"description": "http://{{host}}:{{port}}/v1/shopping/cart/add"
+			},
+			"response": []
+		},
+		{
+			"name": "Remove item from cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"product_id\":1,\n\t\"quantity\":1\n}"
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart/remove",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart",
+						"remove"
+					]
+				},
+				"description": "{\n\t\"product_id\":3,\n\t\"quantity\":1\n}"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/products",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Promotions list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/promotions",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"promotions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Shopping Cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart/clear",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart",
+						"clear"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Checkout Shopping Cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart/checkout",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart",
+						"checkout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy items in shopping cart",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"product_id\":4,\n\t\"quantity\":1\n}"
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/v1/shopping/cart/add",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"shopping",
+						"cart",
+						"add"
+					]
+				},
+				"description": "http://{{host}}:{{port}}/v1/shopping/cart/add"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "37177b62-88ef-409e-944a-afbeea51a67e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7c175416-21e2-46c3-b664-993cbecd9a71",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "32c1a4bb-e801-47a3-96f2-ec86492e19ff",
+			"key": "host",
+			"value": "localhost",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "fc6e461b-b15f-418a-8e9b-90f4f96b116d",
+			"key": "port",
+			"value": "8080",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "f137470e-49a9-4d5b-83ab-a1fdda61f770",
+			"key": "username",
+			"value": "test",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "24884c9f-18bc-4ad2-b012-914ff4262d06",
+			"key": "password",
+			"value": "test",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "fcdd9960-0c92-435b-8b49-aad5330766eb",
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": ""
+		}
+	]
+}
